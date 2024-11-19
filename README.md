@@ -1,4 +1,4 @@
-ONLINE VOTING SYSTEM
+**ONLINE VOTING SYSTEM**
 
 This program implements a basic Online Voting System using C. It allows users to perform the following tasks:
 
