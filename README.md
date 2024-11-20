@@ -3,11 +3,13 @@
 *Voter and Candidate Registration:*
 
 Allows registering voters and candidates with unique IDs and names.
+
 Ensures voters cannot register multiple times using the same ID.
 
 *Vote Casting with Validation:*
 
 Ensures only registered voters can cast a vote.
+
 Prevents voters from voting more than once using a hash table for tracking.
 
 *Dynamic Data Management:*
@@ -17,11 +19,13 @@ Uses linked lists to dynamically manage voters and candidates, supporting an unl
 *Result Display:*
 
 Displays each candidate's vote count after voting is complete.
+
 Announces the winner or identifies a tie if votes are equal.
 
 *Error Handling and Security:*
 
 Validates voter and candidate IDs during operations.
+
 Hash-based tracking ensures integrity by preventing duplicate votes.
 
 
