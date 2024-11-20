@@ -1,13 +1,23 @@
 **ONLINE VOTING SYSTEM**
 
-This program implements a basic Online Voting System using C. It allows users to perform the following tasks:
+*Voter and Candidate Registration:*
+Allows registering voters and candidates with unique IDs and names.
+Ensures voters cannot register multiple times using the same ID.
 
-Register Voters: Users can add voters to the system by providing a unique ID and name.
-Register Candidates: Users can add candidates to the system by providing a unique ID and name.
-Cast Votes: Registered voters can cast their votes for registered candidates. The system ensures that:
-Each voter can vote only once (using a hash table to track voter IDs).
-Only valid candidates can receive votes.
-Display Results: The system tallies the votes for each candidate and displays the election results, including the number of votes each candidate received.
+*Vote Casting with Validation:*
+Ensures only registered voters can cast a vote.
+Prevents voters from voting more than once using a hash table for tracking.
+
+*Dynamic Data Management:*
+Uses linked lists to dynamically manage voters and candidates, supporting an unlimited number of entries.
+
+*Result Display:*
+Displays each candidate's vote count after voting is complete.
+Announces the winner or identifies a tie if votes are equal.
+
+*Error Handling and Security:*
+Validates voter and candidate IDs during operations.
+Hash-based tracking ensures integrity by preventing duplicate votes.
 
 
 **Why It Is Useful**
