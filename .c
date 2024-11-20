@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Define the structures for Voters and Candidates
+// Structures for Voters and Candidates
 typedef struct Voter {
     int id;
     char name[100];
+    char password[50];
     struct Voter *next;
 } Voter;
 
@@ -16,28 +17,29 @@ typedef struct Candidate {
     struct Candidate *next;
 } Candidate;
 
-// Define a Hash Table to track votes
+// Hash Table for tracking votes
 #define TABLE_SIZE 100
-int voteTable[TABLE_SIZE] = {0}; // Initialize all elements to 0
+int voteTable[TABLE_SIZE] = {0};
 
-// Head pointers for the linked lists
+// Linked lists for voters and candidates
 Voter *voterHead = NULL;
 Candidate *candidateHead = NULL;
 
 // Function prototypes
-void registerVoter(int id, const char *name);
+void registerVoter(int id, const char *name, const char *password);
 void registerCandidate(int id, const char *name);
-void castVote(int voterId, int candidateId);
+void castVote(int voterId, const char *password, int candidateId);
 void displayResults();
 int hashFunction(int key);
 int isVoterRegistered(int id);
+Voter *findVoter(int id);
 
 int main() {
     int choice, id, candidateId;
-    char name[100];
+    char name[100], password[50];
 
     while (1) {
-        printf("Menu:\n");
+        printf("\nMenu:\n");
         printf("1. Register Voter\n");
         printf("2. Register Candidate\n");
         printf("3. Cast Vote\n");
@@ -52,7 +54,9 @@ int main() {
                 scanf("%d", &id);
                 printf("Enter Voter Name: ");
                 scanf("%s", name);
-                registerVoter(id, name);
+                printf("Set Voter Password: ");
+                scanf("%s", password);
+                registerVoter(id, name, password);
                 break;
             case 2:
                 printf("Enter Candidate ID: ");
@@ -64,9 +68,11 @@ int main() {
             case 3:
                 printf("Enter Voter ID: ");
                 scanf("%d", &id);
+                printf("Enter Voter Password: ");
+                scanf("%s", password);
                 printf("Enter Candidate ID to vote for: ");
                 scanf("%d", &candidateId);
-                castVote(id, candidateId);
+                castVote(id, password, candidateId);
                 break;
             case 4:
                 displayResults();
@@ -81,7 +87,7 @@ int main() {
     return 0;
 }
 
-void registerVoter(int id, const char *name) {
+void registerVoter(int id, const char *name, const char *password) {
     if (isVoterRegistered(id)) {
         printf("Voter %d is already registered.\n", id);
         return;
@@ -90,23 +96,37 @@ void registerVoter(int id, const char *name) {
     Voter *newVoter = (Voter *)malloc(sizeof(Voter));
     newVoter->id = id;
     strcpy(newVoter->name, name);
+    strcpy(newVoter->password, password);
     newVoter->next = voterHead;
     voterHead = newVoter;
     printf("Voter %d registered: %s\n", id, name);
 }
 
 int isVoterRegistered(int id) {
+    return findVoter(id) != NULL;
+}
+
+Voter *findVoter(int id) {
     Voter *current = voterHead;
     while (current != NULL) {
         if (current->id == id) {
-            return 1; // Voter is already registered
+            return current;
         }
         current = current->next;
     }
-    return 0; // Voter is not registered
+    return NULL;
 }
 
 void registerCandidate(int id, const char *name) {
+    Candidate *current = candidateHead;
+    while (current != NULL) {
+        if (current->id == id) {
+            printf("Candidate %d is already registered.\n", id);
+            return;
+        }
+        current = current->next;
+    }
+
     Candidate *newCandidate = (Candidate *)malloc(sizeof(Candidate));
     newCandidate->id = id;
     strcpy(newCandidate->name, name);
@@ -116,19 +136,27 @@ void registerCandidate(int id, const char *name) {
     printf("Candidate %d registered: %s\n", id, name);
 }
 
-void castVote(int voterId, int candidateId) {
+void castVote(int voterId, const char *password, int candidateId) {
     int index = hashFunction(voterId);
+    Voter *voter = findVoter(voterId);
 
-    // Check if the voter has already voted
+    if (voter == NULL) {
+        printf("Voter ID %d is not registered.\n", voterId);
+        return;
+    }
+
+    if (strcmp(voter->password, password) != 0) {
+        printf("Incorrect password for Voter ID %d.\n", voterId);
+        return;
+    }
+
     if (voteTable[index] != 0) {
         printf("Voter %d has already voted.\n", voterId);
         return;
     }
 
-    // Record the vote
     voteTable[index] = candidateId;
 
-    // Find the candidate and increase their vote count
     Candidate *current = candidateHead;
     while (current != NULL) {
         if (current->id == candidateId) {
@@ -139,18 +167,39 @@ void castVote(int voterId, int candidateId) {
         current = current->next;
     }
 
-    // If candidate ID is not found
     printf("Candidate %d not found.\n", candidateId);
 }
 
 void displayResults() {
     printf("Election Results:\n");
+
     Candidate *current = candidateHead;
+    Candidate *winner = NULL;
+    int maxVotes = 0;
+
+    // Traverse the candidate list to display results and find the winner
     while (current != NULL) {
         printf("Candidate %d (%s) received %d votes.\n", current->id, current->name, current->votes);
+
+        // Determine the candidate with the highest votes
+        if (current->votes > maxVotes) {
+            maxVotes = current->votes;
+            winner = current;
+        } else if (current->votes == maxVotes) {
+            winner = NULL; // Tie between candidates
+        }
+
         current = current->next;
     }
+
+    // Announce the winner
+    if (winner != NULL) {
+        printf("\nWinner: Candidate %d (%s) with %d votes!\n", winner->id, winner->name, maxVotes);
+    } else {
+        printf("\nThere is a tie between candidates. No single winner.\n");
+    }
 }
+
 
 int hashFunction(int key) {
     return key % TABLE_SIZE;
